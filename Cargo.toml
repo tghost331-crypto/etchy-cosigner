@@ -1,0 +1,20 @@
+[workspace]
+resolver = "2"
+members = ["cosigner-core", "cosigner", "timelock", "mock-sol-rpc", "integration"]
+
+[workspace.dependencies]
+bitcoin = { version = "0.32", default-features = false, features = ["std"] }
+candid = "0.10"
+ic-cdk = "0.20"
+ic-cdk-management-canister = "0.3"
+sha2 = "0.10"
+serde = { version = "1", features = ["derive"] }
+bs58 = "0.5"
+base64 = "0.22"
+hex = "0.4"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"

@@ -1,0 +1,13 @@
+[package]
+name = "cosigner-core"
+version = "0.1.0"
+edition = "2021"
+description = "Etchy custody co-signer: pure payout / consolidation checks (no IC dependencies)"
+license = "Apache-2.0"
+
+[dependencies]
+bitcoin = { workspace = true }
+
+[dev-dependencies]
+hex = { workspace = true }
+serde_json = "1"

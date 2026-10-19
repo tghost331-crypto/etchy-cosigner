@@ -1,0 +1,92 @@
+// Etchy custody co-signer (M62). Signs only payouts of finalized, Pending
+// Solana bridge requests and same-coin consolidations. Controller: the
+// 48-hour timelock canister.
+type Cluster = variant { Mainnet; Devnet };
+type Scale = record { mint : text; exp : int8 };
+type Settings = record {
+  etchy_key : text;
+  backup_blocks : nat16;
+  fee_treasury_script : text;
+  max_fee_sats : nat64;
+  max_postage_sats : nat64;
+  bridge_program : text;
+  scales : vec Scale;
+  daily_cap_atoms : opt nat64;
+};
+type InitArgs = record {
+  admin : principal;
+  callers : vec principal;
+  key_name : text;
+  cluster : Cluster;
+  sol_rpc : principal;
+  settings : Settings;
+};
+type UpgradeArgs = record {
+  admin : opt principal;
+  callers : opt vec principal;
+  sol_rpc : opt principal;
+  settings : opt Settings;
+};
+type Address = variant {
+  Custody : record { mint : text };
+  Deposit : record { mint : text; owner : text };
+};
+type Prevout = record { value : nat64; script_pubkey : blob };
+type CoSigned = record { index : nat32; address : Address };
+type PayoutArgs = record {
+  tx : blob;
+  prevouts : vec Prevout;
+  inputs : vec CoSigned;
+  request : text;
+  mint_bridge : text;
+};
+type ConsolidationArgs = record {
+  tx : blob;
+  prevouts : vec Prevout;
+  inputs : vec CoSigned;
+  mint : text;
+};
+type InputSignature = record { index : nat32; signature : blob };
+type Signatures = record { txid : text; fee_sats : nat64; signatures : vec InputSignature };
+type AddressInfo = record {
+  address : Address;
+  cosigner_key : text;
+  script_pubkey : text;
+  encoded : text;
+};
+type PayoutRecord = record {
+  mint : text;
+  atoms : nat64;
+  versions : vec Signatures;
+  common : vec text;
+  first_at : nat64;
+};
+type Event = record { id : nat64; at : nat64; kind : text; detail : text };
+type Status = record {
+  version : text;
+  paused : bool;
+  admin : principal;
+  callers : vec principal;
+  key_name : text;
+  cluster : Cluster;
+  sol_rpc : principal;
+  settings : Settings;
+  addresses_known : nat64;
+  payouts : nat64;
+  signatures : nat64;
+  consolidations_today : nat32;
+  paid_today : vec record { text; nat64 };
+  cycles : nat;
+};
+service : (InitArgs) -> {
+  addresses : (vec Address) -> (variant { Ok : vec AddressInfo; Err : text });
+  sign_payout : (PayoutArgs) -> (variant { Ok : Signatures; Err : text });
+  sign_consolidation : (ConsolidationArgs) -> (variant { Ok : Signatures; Err : text });
+  pause : (text) -> (variant { Ok; Err : text });
+  unpause : () -> (variant { Ok; Err : text });
+  set_callers : (vec principal) -> (variant { Ok; Err : text });
+  status : () -> (Status) query;
+  address : (Address) -> (variant { Ok : opt AddressInfo; Err : text }) query;
+  payout : (text) -> (opt PayoutRecord) query;
+  events : (nat64) -> (vec Event) query;
+}

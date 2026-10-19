@@ -1,0 +1,16 @@
+[package]
+name = "timelock"
+version = "0.1.0"
+edition = "2021"
+description = "Etchy timelock: the co-signer's only controller (48h public delay on upgrades)"
+license = "Apache-2.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = { workspace = true }
+ic-cdk = { workspace = true }
+ic-cdk-management-canister = { workspace = true }
+serde = { workspace = true }
+sha2 = { workspace = true }

@@ -1,0 +1,16 @@
+[package]
+name = "mock-sol-rpc"
+version = "0.1.0"
+edition = "2021"
+description = "TEST ONLY: SOL RPC canister stand-in for PocketIC tests"
+license = "Apache-2.0"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = { workspace = true }
+ic-cdk = { workspace = true }
+serde = { workspace = true }
+base64 = { workspace = true }

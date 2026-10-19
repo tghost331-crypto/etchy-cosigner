@@ -1,0 +1,26 @@
+// Etchy timelock (M62): the co-signer's only controller. Upgrades are public
+// for delay_seconds (48h) before anyone can execute them.
+type InitArgs = record { admin : principal; target : principal; delay_seconds : nat64 };
+type ProposalStatus = variant { Pending; Executed; Cancelled };
+type Proposal = record {
+  id : nat64;
+  wasm_module_hash : blob;
+  arg : blob;
+  arg_sha256 : blob;
+  note : text;
+  proposed_at : nat64;
+  executable_at : nat64;
+  status : ProposalStatus;
+  chunks : vec blob;
+  executed_at : opt nat64;
+  last_error : opt text;
+};
+type Info = record { admin : principal; target : principal; delay_seconds : nat64; now : nat64 };
+service : (InitArgs) -> {
+  propose : (blob, blob, text) -> (variant { Ok : nat64; Err : text });
+  cancel : (nat64) -> (variant { Ok; Err : text });
+  upload : (nat64, blob) -> (variant { Ok : blob; Err : text });
+  execute : (nat64) -> (variant { Ok; Err : text });
+  proposals : () -> (vec Proposal) query;
+  info : () -> (Info) query;
+}
